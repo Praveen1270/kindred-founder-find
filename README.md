@@ -1,73 +1,191 @@
-# Welcome to your Lovable project
+# Founders Collaboration Platform
 
-## Project info
+A modern web application that connects startup founders by matching them based on complementary skills, industry alignment, and startup stage compatibility. Built with React, TypeScript, Supabase, and Tailwind CSS.
 
-**URL**: https://lovable.dev/projects/114eeb65-e7cb-4668-b3c5-f3929f8216d3
+## Features
 
-## How can I edit this code?
+### 🚀 Core Functionality
+- **User Authentication**: Secure signup/login with Supabase Auth
+- **Profile Creation**: Comprehensive founder profiles with skills and startup ideas
+- **Smart Matching**: AI-powered matching algorithm based on:
+  - Skill complementarity (40% weight)
+  - Industry similarity (30% weight)
+  - Stage alignment (30% weight)
+- **Real-time Messaging**: In-app messaging system for matched founders
+- **Notifications**: Email and in-app notifications for new matches
+- **Dashboard**: Comprehensive dashboard with analytics and match management
 
-There are several ways of editing your application.
+### 🎯 Key Features
+- **Founder Profiles**: Detailed profiles with skills, experience, and contact information
+- **Startup Ideas**: Submit and manage startup ideas with industry and stage classification
+- **Match Generation**: Automated matching with compatibility scores
+- **Messaging System**: Real-time chat between matched founders
+- **Search & Discovery**: Browse all available founders and their ideas
+- **Notifications**: Stay updated with new matches and messages
 
-**Use Lovable**
+### 🛠 Technical Stack
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Components**: Shadcn/ui + Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Auth + Real-time)
+- **State Management**: React Query + React Hooks
+- **Routing**: React Router DOM
+- **Icons**: Lucide React
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/114eeb65-e7cb-4668-b3c5-f3929f8216d3) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Supabase account
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd kindred-founder-find
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Set up Supabase**
+   - Create a new Supabase project
+   - Copy your project URL and anon key
+   - Update `src/integrations/supabase/client.ts` with your credentials
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Run database migrations**
+   ```bash
+   # Apply the database schema
+   # Copy the contents of supabase/migrations/001_initial_schema.sql
+   # and run it in your Supabase SQL editor
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+6. **Open your browser**
+   Navigate to `http://localhost:5173`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Database Schema
+
+### Tables
+- **profiles**: Founder profiles with personal information and skills
+- **startup_ideas**: Startup ideas with industry and stage classification
+- **matches**: Generated matches between founders with compatibility scores
+- **messages**: Real-time messaging between matched founders
+- **notifications**: In-app notifications for users
+
+### Key Functions
+- **calculate_compatibility_score()**: Calculates match compatibility (0-100)
+- **generate_matches()**: Generates new matches between all founders
+- **send_match_notification()**: Sends notifications when matches are created
+
+## Usage
+
+### For Founders
+
+1. **Sign Up**: Create an account with your email and password
+2. **Complete Profile**: Add your skills, experience, and contact information
+3. **Submit Startup Idea**: Describe your startup idea, industry, and stage
+4. **Generate Matches**: Click "Generate Matches" to find potential co-founders
+5. **Connect**: Message matched founders and start conversations
+6. **Stay Updated**: Check notifications for new matches and messages
+
+### Matching Algorithm
+
+The platform uses a sophisticated matching algorithm that considers:
+
+- **Skill Complementarity (40%)**: Matches founders whose skills complement each other's needs
+- **Industry Similarity (30%)**: Prefers founders in similar or related industries
+- **Stage Alignment (30%)**: Matches founders at similar startup stages
+
+### Security Features
+
+- **Row Level Security (RLS)**: Database-level security policies
+- **Authentication**: Secure user authentication with Supabase Auth
+- **Data Privacy**: Users can only see their own data and matches
+- **GDPR Compliance**: Built-in data protection features
+
+## Development
+
+### Project Structure
+```
+src/
+├── components/          # React components
+│   ├── Auth/          # Authentication components
+│   ├── Dashboard/     # Main dashboard
+│   ├── Profile/       # Profile management
+│   └── ui/           # Reusable UI components
+├── hooks/             # Custom React hooks
+├── integrations/      # External service integrations
+│   └── supabase/     # Supabase client and types
+├── lib/              # Utility functions and services
+│   ├── matching-service.ts
+│   ├── notification-service.ts
+│   └── messaging-service.ts
+└── pages/            # Page components
 ```
 
-**Edit a file directly in GitHub**
+### Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-**Use GitHub Codespaces**
+### Environment Variables
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Create a `.env.local` file with:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## What technologies are used for this project?
+## Deployment
 
-This project is built with:
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Other Platforms
+- **Netlify**: Similar to Vercel setup
+- **AWS Amplify**: Full-stack deployment
+- **Heroku**: Traditional hosting
 
-## How can I deploy this project?
+## Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/114eeb65-e7cb-4668-b3c5-f3929f8216d3) and click on Share -> Publish.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## Can I connect a custom domain to my Lovable project?
+## License
 
-Yes, you can!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Support
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+For support, email support@foundercollab.com or create an issue in this repository.
+
+## Roadmap
+
+- [ ] Mobile app (React Native)
+- [ ] Advanced filtering options
+- [ ] Video call integration
+- [ ] Startup idea validation
+- [ ] Investor matching
+- [ ] Mentorship program
+- [ ] Events and meetups
+- [ ] Analytics dashboard
+- [ ] API for third-party integrations
+
+---
+
+Built with ❤️ for the startup community

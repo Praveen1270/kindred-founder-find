@@ -14,13 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          id: string
+          user_id: string
+          full_name: string
+          email: string
+          phone_number: string | null
+          bio: string | null
+          linkedin_url: string | null
+          github_url: string | null
+          skills: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          full_name: string
+          email: string
+          phone_number?: string | null
+          bio?: string | null
+          linkedin_url?: string | null
+          github_url?: string | null
+          skills?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          full_name?: string
+          email?: string
+          phone_number?: string | null
+          bio?: string | null
+          linkedin_url?: string | null
+          github_url?: string | null
+          skills?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      startup_ideas: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string
+          industry: string
+          stage: string
+          skills_needed: string[]
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description: string
+          industry: string
+          stage: string
+          skills_needed?: string[]
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string
+          industry?: string
+          stage?: string
+          skills_needed?: string[]
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      matches: {
+        Row: {
+          id: string
+          founder1_id: string
+          founder2_id: string
+          compatibility_score: number
+          match_reason: string | null
+          is_mutual: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          founder1_id: string
+          founder2_id: string
+          compatibility_score: number
+          match_reason?: string | null
+          is_mutual?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          founder1_id?: string
+          founder2_id?: string
+          compatibility_score?: number
+          match_reason?: string | null
+          is_mutual?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      messages: {
+        Row: {
+          id: string
+          sender_id: string
+          receiver_id: string
+          content: string
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          sender_id: string
+          receiver_id: string
+          content: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          sender_id?: string
+          receiver_id?: string
+          content?: string
+          is_read?: boolean
+          created_at?: string
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          is_read: boolean
+          related_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          message: string
+          type?: string
+          is_read?: boolean
+          related_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          message?: string
+          type?: string
+          is_read?: boolean
+          related_id?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_compatibility_score: {
+        Args: {
+          skills1: string[]
+          skills_needed1: string[]
+          skills2: string[]
+          skills_needed2: string[]
+          industry1: string
+          industry2: string
+          stage1: string
+          stage2: string
+        }
+        Returns: number
+      }
+      generate_matches: {
+        Args: Record<string, never>
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never

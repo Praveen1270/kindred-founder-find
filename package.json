@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "founders-collaboration-platform",
+  "description": "A modern web application that connects startup founders by matching them based on complementary skills, industry alignment, and startup stage compatibility.",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

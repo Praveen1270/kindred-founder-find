@@ -35,10 +35,14 @@ export const useProfile = () => {
   const [startupIdea, setStartupIdea] = useState<StartupIdea | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       checkProfile();
+    } else {
+      setLoading(false);
+      setHasProfile(false);
     }
   }, [user]);
 
@@ -47,6 +51,7 @@ export const useProfile = () => {
 
     try {
       setLoading(true);
+      setError(null);
 
       // Check if profile exists
       const { data: profileData, error: profileError } = await supabase
@@ -55,7 +60,15 @@ export const useProfile = () => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (profileError && profileError.code !== 'PGRST116') {
+      // Handle database errors gracefully
+      if (profileError) {
+        // If it's a table doesn't exist error, treat as no profile
+        if (profileError.code === '42P01' || profileError.message.includes('relation "profiles" does not exist')) {
+          console.log('Database tables not set up yet - treating as no profile');
+          setHasProfile(false);
+          setLoading(false);
+          return;
+        }
         throw profileError;
       }
 
@@ -72,7 +85,10 @@ export const useProfile = () => {
           .maybeSingle();
 
         if (ideaError && ideaError.code !== 'PGRST116') {
-          throw ideaError;
+          // Only throw if it's not a "not found" error
+          if (!ideaError.message.includes('relation "startup_ideas" does not exist')) {
+            throw ideaError;
+          }
         }
 
         if (ideaData) {
@@ -81,8 +97,10 @@ export const useProfile = () => {
       } else {
         setHasProfile(false);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking profile:', error);
+      setError(error.message);
+      // Don't set hasProfile to false here, let the user try again
     } finally {
       setLoading(false);
     }
@@ -136,6 +154,7 @@ export const useProfile = () => {
     startupIdea,
     loading,
     hasProfile,
+    error,
     updateProfile,
     updateStartupIdea,
     refreshProfile: checkProfile,
