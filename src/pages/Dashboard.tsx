@@ -1,20 +1,20 @@
 import React from 'react';
 import { AuthProvider, useAuth } from '@/components/Auth/AuthProvider';
+import { Dashboard as DashboardComponent } from '@/components/Dashboard/Dashboard';
 import { useProfile } from '@/hooks/useProfile';
 import { ProfileSetup } from '@/components/Profile/ProfileSetup';
-import { Dashboard } from '@/components/Dashboard/Dashboard';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
-import { LandingPage } from '@/components/Landing/LandingPage';
 
-const AppContent: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const { hasProfile, loading: profileLoading } = useProfile();
   const navigate = useNavigate();
 
-  // Show landing page if not authenticated
+  // Redirect to sign if not authenticated
   if (!authLoading && !user) {
-    return <LandingPage />;
+    navigate('/sign');
+    return null;
   }
 
   // Show loading while checking auth
@@ -31,7 +31,7 @@ const AppContent: React.FC = () => {
 
   // Show profile setup if user doesn't have a profile
   if (!profileLoading && !hasProfile) {
-    return <ProfileSetup onComplete={() => navigate('/dashboard')} />;
+    return <ProfileSetup onComplete={() => window.location.reload()} />;
   }
 
   // Show loading while checking profile
@@ -47,16 +47,16 @@ const AppContent: React.FC = () => {
   }
 
   // Show dashboard if user has profile
-  return <Dashboard />;
+  return <DashboardComponent />;
 };
 
-const Index: React.FC = () => {
+const Dashboard: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <DashboardContent />
       <Toaster />
     </AuthProvider>
   );
 };
 
-export default Index;
+export default Dashboard;

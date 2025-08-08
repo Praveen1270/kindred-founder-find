@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, 
   Lightbulb, 
@@ -16,10 +17,19 @@ import {
 } from 'lucide-react';
 
 interface LandingPageProps {
-  onGetStarted: () => void;
+  onGetStarted?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      navigate('/sign');
+    }
+  };
   const features = [
     {
       icon: <Search className="h-6 w-6" />,
@@ -83,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <span className="text-xl font-semibold text-gray-900">FounderCollab</span>
             </div>
             <Button 
-              onClick={onGetStarted}
+              onClick={handleGetStarted}
               className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2 rounded-full font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             >
               Get Started
@@ -113,7 +123,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              onClick={onGetStarted}
+              onClick={handleGetStarted}
               className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Start Finding Matches
@@ -260,7 +270,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </p>
           <Button 
             size="lg" 
-            onClick={onGetStarted}
+            onClick={handleGetStarted}
             className="bg-white text-gray-900 hover:bg-gray-100 px-10 py-4 rounded-full text-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             Get Started Free
