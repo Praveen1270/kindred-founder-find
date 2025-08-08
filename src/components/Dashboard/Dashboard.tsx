@@ -12,11 +12,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { LogOut, Mail, Phone, ExternalLink, Users, Lightbulb, Search, MessageCircle, Bell, Send, AlertCircle, Database, User, Briefcase, Edit, X } from 'lucide-react';
+import { LogOut, Mail, Phone, ExternalLink, Users, Lightbulb, Search, MessageCircle, Bell, Send, AlertCircle, Database, User, Briefcase, Edit, X, Menu, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { MatchingService, MatchResult } from '@/lib/matching-service';
 import { NotificationService, Notification } from '@/lib/notification-service';
 import { MessagingService, Conversation, Message } from '@/lib/messaging-service';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Profile {
   id: string;
@@ -55,6 +56,7 @@ const COMMON_SKILLS = [
 export const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [startupIdea, setStartupIdea] = useState<StartupIdea | null>(null);
   const [matches, setMatches] = useState<MatchResult[]>([]);
@@ -71,6 +73,7 @@ export const Dashboard: React.FC = () => {
   const [findingMatches, setFindingMatches] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -447,15 +450,17 @@ export const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Users className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-gray-900">FounderCollab</span>
+              <span className="text-lg sm:text-xl font-semibold text-gray-900">FounderCollab</span>
             </div>
-            <div className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden sm:flex items-center gap-4">
               <span className="text-sm text-gray-600">Welcome, {profile?.full_name}!</span>
               
               {/* Notifications */}
@@ -511,88 +516,157 @@ export const Dashboard: React.FC = () => {
                 Sign Out
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="sm:hidden flex items-center gap-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="relative border-gray-200 rounded-xl">
+                    <Bell className="h-4 w-4" />
+                    {unreadNotifications > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 text-xs bg-red-500">
+                        {unreadNotifications}
+                      </Badge>
+                    )}
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md border-0 shadow-2xl rounded-3xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-gray-900">Notifications</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <p className="text-gray-500 text-center py-8">No notifications</p>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div key={notification.id} className={`p-4 rounded-2xl ${!notification.is_read ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'}`}>
+                          <h4 className="font-semibold text-gray-900 text-sm">{notification.title}</h4>
+                          <p className="text-xs text-gray-600 mt-1">{notification.message}</p>
+                          <p className="text-xs text-gray-500 mt-2">
+                            {formatDate(notification.created_at)}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {unreadNotifications > 0 && (
+                    <Button 
+                      onClick={handleMarkNotificationsAsRead} 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium"
+                    >
+                      Mark All as Read
+                    </Button>
+                  )}
+                </DialogContent>
+              </Dialog>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="sm:hidden border-t border-gray-100 py-4 space-y-3">
+              <div className="text-sm text-gray-600">Welcome, {profile?.full_name}!</div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSignOut}
+                className="w-full border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-gray-100 p-1 rounded-2xl mb-8">
+          <TabsList className={`grid w-full ${isMobile === true ? 'grid-cols-2 gap-2' : 'grid-cols-5'} bg-gray-100 p-1 rounded-2xl mb-6 sm:mb-8`}>
             <TabsTrigger 
               value="dashboard" 
-              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 text-xs sm:text-sm"
             >
               Dashboard
             </TabsTrigger>
             <TabsTrigger 
               value="matches"
-              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 text-xs sm:text-sm"
             >
               Matches ({matches.length})
             </TabsTrigger>
             <TabsTrigger 
               value="search"
-              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 text-xs sm:text-sm"
             >
-              Search Founders
+              Search
             </TabsTrigger>
             <TabsTrigger 
               value="messages"
-              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 text-xs sm:text-sm"
             >
               Messages {unreadMessages > 0 && `(${unreadMessages})`}
             </TabsTrigger>
             <TabsTrigger 
               value="profile"
-              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900"
+              className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-gray-900 text-xs sm:text-sm"
             >
-              My Profile
+              Profile
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-8">
-            <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-gray-900">Dashboard</h2>
+          <TabsContent value="dashboard" className="space-y-6 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h2>
               <Button 
                 onClick={handleFindMatches} 
                 disabled={findingMatches}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <Search className="h-4 w-4 mr-2" />
                 {findingMatches ? 'Finding Matches...' : 'Find Matches'}
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-6 sm:p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Total Matches</h3>
-                  <Users className="h-6 w-6 text-blue-600" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Total Matches</h3>
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{matches.length}</div>
-                <p className="text-gray-600 text-sm">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{matches.length}</div>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Potential co-founders
                 </p>
               </div>
               
-              <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-6 sm:p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Your Idea Stage</h3>
-                  <Lightbulb className="h-6 w-6 text-green-600" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Your Idea Stage</h3>
+                  <Lightbulb className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{startupIdea?.stage || 'Not set'}</div>
-                <p className="text-gray-600 text-sm">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{startupIdea?.stage || 'Not set'}</div>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   {startupIdea?.industry || 'No industry selected'}
                 </p>
               </div>
               
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 sm:p-8 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Available Founders</h3>
-                  <Search className="h-6 w-6 text-orange-600" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">Available Founders</h3>
+                  <Search className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{allProfiles.length}</div>
-                <p className="text-gray-600 text-sm">
+                <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{allProfiles.length}</div>
+                <p className="text-gray-600 text-xs sm:text-sm">
                   Actively looking for co-founders
                 </p>
               </div>
@@ -1002,62 +1076,77 @@ export const Dashboard: React.FC = () => {
 
       {/* Edit Profile Dialog */}
       <Dialog open={showEditProfile} onOpenChange={setShowEditProfile}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-0 shadow-2xl rounded-3xl">
+          <DialogHeader className="text-center pb-6">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <DialogTitle className="text-2xl font-bold text-gray-900">Edit Profile</DialogTitle>
+            </div>
+            <p className="text-gray-600">Update your profile and startup idea to find better matches</p>
           </DialogHeader>
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Personal Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Personal Information</h3>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Personal Information</h3>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-fullName">Full Name *</Label>
+                  <Label htmlFor="edit-fullName" className="text-sm font-medium text-gray-700 mb-2 block">Full Name *</Label>
                   <Input
                     id="edit-fullName"
                     value={editForm.fullName}
                     onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                    className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-email">Email *</Label>
+                  <Label htmlFor="edit-email" className="text-sm font-medium text-gray-700 mb-2 block">Email *</Label>
                   <Input
                     id="edit-email"
                     type="email"
                     value={editForm.email}
+                    className="h-12 rounded-xl border-gray-200 bg-gray-50"
                     disabled
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="edit-phoneNumber">Phone Number</Label>
+                <Label htmlFor="edit-phoneNumber" className="text-sm font-medium text-gray-700 mb-2 block">Phone Number</Label>
                 <Input
                   id="edit-phoneNumber"
                   type="tel"
                   placeholder="+1-123-456-7890"
                   value={editForm.phoneNumber}
                   onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
+                  className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <Label htmlFor="edit-bio">Bio</Label>
+                <Label htmlFor="edit-bio" className="text-sm font-medium text-gray-700 mb-2 block">Bio</Label>
                 <Textarea
                   id="edit-bio"
                   placeholder="Tell us about your background and experience..."
                   value={editForm.bio}
                   onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  className="rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
                 />
               </div>
 
               <div>
-                <Label>Your Skills *</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">Your Skills *</Label>
                 <div className="flex gap-2 mt-2">
                   <Select value={editForm.currentSkill} onValueChange={(value) => setEditForm({ ...editForm, currentSkill: value })}>
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="flex-1 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Select a skill" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1070,16 +1159,17 @@ export const Dashboard: React.FC = () => {
                     type="button" 
                     onClick={() => addSkill(editForm.currentSkill, 'skills')}
                     disabled={!editForm.currentSkill}
+                    className="h-12 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium"
                   >
                     Add
                   </Button>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-3">
                   {editForm.skills.map((skill) => (
-                    <Badge key={skill} variant="secondary">
+                    <Badge key={skill} variant="secondary" className="rounded-xl px-3 py-1 bg-blue-100 text-blue-800 border-blue-200">
                       {skill}
                       <X
-                        className="h-3 w-3 ml-1 cursor-pointer"
+                        className="h-3 w-3 ml-1 cursor-pointer hover:text-blue-600"
                         onClick={() => removeSkill(skill, 'skills')}
                       />
                     </Badge>
@@ -1089,37 +1179,43 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Startup Idea */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Startup Idea</h3>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <Lightbulb className="h-4 w-4 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Startup Idea</h3>
+              </div>
               
               <div>
-                <Label htmlFor="edit-title">Idea Title *</Label>
+                <Label htmlFor="edit-title" className="text-sm font-medium text-gray-700 mb-2 block">Idea Title *</Label>
                 <Input
                   id="edit-title"
                   placeholder="AI-powered fitness app"
                   value={editForm.title}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <Label htmlFor="edit-description">Description *</Label>
+                <Label htmlFor="edit-description" className="text-sm font-medium text-gray-700 mb-2 block">Description *</Label>
                 <Textarea
                   id="edit-description"
                   placeholder="Describe your startup idea in detail..."
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className="min-h-[100px]"
+                  className="rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500 min-h-[120px]"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-industry">Industry *</Label>
+                  <Label htmlFor="edit-industry" className="text-sm font-medium text-gray-700 mb-2 block">Industry *</Label>
                   <Select value={editForm.industry} onValueChange={(value) => setEditForm({ ...editForm, industry: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Select industry" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1131,9 +1227,9 @@ export const Dashboard: React.FC = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="edit-stage">Stage *</Label>
+                  <Label htmlFor="edit-stage" className="text-sm font-medium text-gray-700 mb-2 block">Stage *</Label>
                   <Select value={editForm.stage} onValueChange={(value) => setEditForm({ ...editForm, stage: value })}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Select stage" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1146,10 +1242,10 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div>
-                <Label>Skills You Need *</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">Skills You Need *</Label>
                 <div className="flex gap-2 mt-2">
                   <Select value={editForm.currentNeededSkill} onValueChange={(value) => setEditForm({ ...editForm, currentNeededSkill: value })}>
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="flex-1 h-12 rounded-xl border-gray-200 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Select a skill you need" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1162,16 +1258,17 @@ export const Dashboard: React.FC = () => {
                     type="button" 
                     onClick={() => addSkill(editForm.currentNeededSkill, 'skillsNeeded')}
                     disabled={!editForm.currentNeededSkill}
+                    className="h-12 px-4 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-xl font-medium"
                   >
                     Add
                   </Button>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-3">
                   {editForm.skillsNeeded.map((skill) => (
-                    <Badge key={skill} variant="outline">
+                    <Badge key={skill} variant="outline" className="rounded-xl px-3 py-1 bg-green-100 text-green-800 border-green-200">
                       {skill}
                       <X
-                        className="h-3 w-3 ml-1 cursor-pointer"
+                        className="h-3 w-3 ml-1 cursor-pointer hover:text-green-600"
                         onClick={() => removeSkill(skill, 'skillsNeeded')}
                       />
                     </Badge>
@@ -1180,11 +1277,19 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={handleSaveProfile} disabled={editingProfile} className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-3 pt-6">
+              <Button 
+                onClick={handleSaveProfile} 
+                disabled={editingProfile} 
+                className="flex-1 h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+              >
                 {editingProfile ? 'Saving...' : 'Save Changes'}
               </Button>
-              <Button variant="outline" onClick={() => setShowEditProfile(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowEditProfile(false)}
+                className="h-12 border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl"
+              >
                 Cancel
               </Button>
             </div>
