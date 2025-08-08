@@ -199,12 +199,31 @@ export const Dashboard: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      // Redirect to home page after successful sign out
+      window.location.href = '/';
     } catch (error: any) {
+      console.error('Sign out error:', error);
+      
+      // Handle specific error cases
+      let errorMessage = 'Failed to sign out. Please try again.';
+      
+      if (error.message.includes('auth session missing')) {
+        errorMessage = 'Session expired. You have been signed out.';
+        // Force redirect even if there's an error
+        window.location.href = '/';
+        return;
+      }
+      
       toast({
-        title: 'Error',
-        description: error.message,
+        title: 'Sign Out Error',
+        description: errorMessage,
         variant: 'destructive',
       });
+      
+      // Still redirect even if there's an error
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
     }
   };
 

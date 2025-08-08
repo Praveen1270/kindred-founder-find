@@ -39,7 +39,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Set up session refresh
+    const refreshSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session refresh error:', error);
+          setUser(null);
+        } else {
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Session refresh failed:', error);
+        setUser(null);
+      }
+    };
+
+    // Refresh session every 5 minutes
+    const refreshInterval = setInterval(refreshSession, 5 * 60 * 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(refreshInterval);
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -74,8 +96,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      // Check if user is actually authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('No active session found, clearing local state');
+        setUser(null);
+        return; // No need to sign out if no session exists
+      }
+      
+      // Clear local state first
+      setUser(null);
+      
+      // Attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        // Even if there's an error, we should still clear the local state
+        // and redirect the user
+        setUser(null);
+        throw error;
+      }
+      
+      console.log('Sign out successful');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+      // Clear user state regardless of error
+      setUser(null);
+      throw error;
+    }
   };
 
   const value = {
