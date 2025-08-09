@@ -48,7 +48,7 @@ const INDUSTRIES = [
 const STAGES = ['Idea', 'MVP', 'Revenue Stage', 'Prototype', 'Launched'];
 
 const COMMON_SKILLS = [
-  'Frontend Development', 'Backend Development', 'Mobile Development', 'UI/UX Design',
+  'Frontend Development', 'Backend Development', 'Full Stack Development', 'Mobile Development', 'UI/UX Design',
   'Product Management', 'Marketing', 'Sales', 'Business Development', 'Data Science',
   'Machine Learning', 'DevOps', 'Finance', 'Legal', 'HR', 'Operations'
 ];
