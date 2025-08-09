@@ -43,8 +43,8 @@ export const AuthForm: React.FC = () => {
     try {
       await signUp(signUpForm.email, signUpForm.password, signUpForm.fullName);
       toast({
-        title: 'Account created!',
-        description: 'Please check your email to verify your account.',
+        title: 'Account created successfully!',
+        description: 'Welcome to Kindred Founder Find!',
       });
     } catch (error: any) {
       toast({

@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, fullName: string) => {
     console.log('Attempting sign up with email:', email);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -79,7 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Sign up error:', error);
       throw error;
     }
-    console.log('Sign up successful');
+    
+    // If user is immediately confirmed (no email confirmation required)
+    if (data.user && data.session) {
+      console.log('Sign up successful - user immediately authenticated');
+      setUser(data.user);
+    } else {
+      console.log('Sign up successful - email confirmation may be required');
+    }
   };
 
   const signIn = async (email: string, password: string) => {
